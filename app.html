@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TensorShop</title>
+    <meta charset="utf-8" />
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="TensorShop" />
+
+    <link rel="shortcut icon" href="./favicon/favicon.ico">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="./css/main.css" rel="stylesheet" />
+    <link href="./css/main.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  
+  <body id="body">
+    <span id = "poly-rep" class="hidden">x<sub>0</sub>y<sub>0</sub>z<sub>6</sub></span>
+<div id = "control-panel">
+	<button onclick="startTutorial()" id="tutorial-button">Tutorial</button>
+	<button onclick="toggleSettings()" title = "Settings" id ="settings-button"><i class="fa-solid fa-gear"></i></button>
+	<div class = "row full-button-row">
+		<button onclick="importToggle()" id="import-button" title = "Import">Import</button>
+		<button onclick="toggleExportChoice()" id="export-button" title = "Export">Export</button>
+	</div>
+	<div class = "row">
+		<button onclick="doSelfKronecker()" id ="self-kronecker-button">⊗ Self-Kronecker</button>
+		<button onclick="doKronecker()" id ="kronecker-button">⊗ Kronecker</button>
+	</div>
+	<span class="big-spacer"></span>
+	<div class = "row">
+		<div class = "subrow">
+			<label for = "new-tensor-name" class="new-tensor-name-label">Tensor Name:</label>
+			<input id = "new-tensor-name" name="new-tensor-name"/>
+		</div>
+		<div class = "subrow">
+			<button id = "add-to-library-button" onclick="addToLibrary(document.getElementById('new-tensor-name').value,tensor)">Add Current Tensor To Library</button>
+		</div>
+	</div>
+	<span class="section-divider">Polynomial Representation</span>
+	<div class = "row">
+		<button onclick="togglePolyRep()" id="toggle-polyrep">Toggle</button>
+		<button onclick="copyPolyRep(this)">Copy to Clipboard</button>
+	</div>
+	<span class="section-divider">Tensor Size</span>
+	<div class = "row">
+		<button onclick="resizeTensor(false)">-</button>
+		<button onclick="resizeTensor(true)">+</button>
+	</div>
+	<span class="section-divider">Find Matrix Multiplication Tensors</span>
+	<div class = "row">
+		<div class = "subrow">
+			<button id = "diagonal-toggle"><b>Start</b> Viewing MatMult</button>
+		</div>
+		<div class = "subrow">
+			<button onclick="shiftViewIndex(-1)" id="diagonal-shift-left"><</button>
+			<button onclick="shiftViewIndex(1)" id="diagonal-shift-right">></button>
+		</div>
+	</div>
+	<span class="section-divider">Index Permutation</span>
+	<div class = "row">
+		<div class = "subrow">
+			<span id="dimension-label">x&nbsp  y&nbsp   z</span>
+		</div>
+		<div class = "subrow">
+			<button id = "index-permutation-left" onclick="permuteIndices(-1)"><</button>
+			<button id = "index-permutation-right" onclick="permuteIndices(1)">></button>
+		</div>
+	</div>
+	<span class="spacer"></span>
+	<div class = "" id = 'painting-controls'>
+		<span class="section-divider small-top-margin">Expression for Tensor "Painting"<br>'i' = index along path<br>'s' = tensor size</span>
+		<div class = "row columns">
+			<div class = "subcol">
+				<span class = "sigma-annotation" id = "painting-length">n</span>
+				<span class = "big-symbol">Σ</span>
+				<span class = "sigma-annotation">i = <input type="number" id = "painting-start" value=0></span>
+			</div>
+			<div class = "subcol">
+				<input id = "painting-expression" type="text" placeholder = "expression" value="i % s">
+			</div>
+		</div>
+	</div>
+	<div class = "hidden" id = 'mdlp-controls'>
+		<span class="section-divider small-top-margin">Solve Monomial Degeneration</span>
+		<br>
+		<button id = "generate-mdlp-code" onclick="getMDLPCode();">
+				<b>Generate</b> Monomial Degeneration Linear Programming Code
+			</button>
+	</div>
+	<div class = "hidden" id = 'partition-controls'>
+		<span class="section-divider small-top-margin">Partitioning Values</span>
+		<br>
+
+		<div class = "">
+			<label for = "partition-matrix-value">Total Value:&nbsp;&nbsp;</label>
+			<input id = "partition-matrix-total-value" name = "partition-matrix-value">
+		</div>
+		<br>
+		<div class = "partition-grid" id = "partition-grid-parent">
+			<div class = "partition-grid-row">
+				<input>
+				<input>
+				<input>
+			</div>
+			<div class = "partition-grid-row">
+				<input>
+				<input>
+				<input>
+			</div>
+			<div class = "partition-grid-row">
+				<input>
+				<input>
+				<input>
+			</div>
+		</div>
+		<br>
+		<div class = "subrow">
+			<button id = "partition-compute-toggle" onclick="computePossiblePartitions();">
+				<b>Compute</b> Possible Partitions
+			</button>
+		</div>
+		<div class = "subrow hidden" id = "partitions-shift-parent">
+			<button onclick="shiftPartitionViewIndex(-1)" id="partitions-shift-left"><</button>
+			<button onclick="shiftPartitionViewIndex(1)" id="partitions-shift-right">></button>
+		</div>
+		<br>
+		<button id = "generate-maple-code" onclick="getMapleCode();">
+				<b>Generate</b> Maple Optimization Code
+			</button>
+		<br>
+		<br>
+		<br>
+	</div>
+</div>
+<div id = "edit-toolbar">
+	<button class = "item" id="single-editing-tool" title="Edit Single Item" onclick = "setEditMode('EDITING-SINGLE', this)">
+		<i class="fa-solid fa-pen-to-square"></i>
+	</button>
+	<button class = "item" title="Paint Multiple Items" onclick = "setEditMode('EDITING-MULTIPLE', this)">
+		<i class="fa-solid fa-paintbrush"></i>
+	</button>
+	<span class="spacer"></span>
+	<button class = "item active" id="swap-tool" title="Swapping and Inserting" onclick = "setEditMode('SELECTING-SWAPPING', this)">
+		<i class="fa-solid fa-shuffle"></i>
+	</button>
+	<span class="spacer"></span>
+	<button class = "item" id = "zoom-in-button" title="Zoom In" onclick = "setEditMode('VIEWING-ZOOM-IN', this)">
+		<i class="fa-solid fa-magnifying-glass-plus"></i>
+	</button>
+	<button class = "item" id = "pan-button" title="Pan Around" onclick = "setEditMode('VIEWING-PAN', this)">
+		<i class="fa-solid fa-hand"></i>
+	</button>
+	<button class = "item" id = "zoom-out-button" title="Zoom Out" onclick = "setEditMode('VIEWING-ZOOM-OUT', this)">
+		<i class="fa-solid fa-magnifying-glass-minus"></i>
+	</button>
+	<span class="spacer"></span>
+	<button class = "item" id = "zeroing-out-button" title="Zeroing Out" onclick = "setEditMode('REMOVAL-ZEROING', this)">
+		<i class="fa-solid fa-0"></i>
+	</button>
+	<button class = "item" id = "degeneration-button" title="Monomial Degeneration" onclick = "setEditMode('REMOVAL-DEGENERATION', this)">
+		<i class="fa-solid fa-circle-xmark"></i>
+	</button>
+	<button class = "item" id = "solve-degeneration-button" title="Solve Monomial Degeneration" onclick = "setEditMode('REMOVAL-SOLVE-DEGENERATION', this)">
+		<i class="fa-solid fa-less-than-equal"></i>
+	</button>
+	<button class = "item" id = "partition-button" title="Partition Matrix" onclick = "setEditMode('PARTITION', this)">
+		<i class="fa-solid fa-marker"></i>
+	</button>
+	<button class = "item" id = "zoom-out-partition-button" title="Zoom Out on Partition" onclick = "setEditMode('ZOOM-OUT-PARTITION', this)">
+		<i class="fa-solid fa-arrow-up"></i>
+	</button>
+</div>
+<div id = "import-choice" class="modal choice-parent hidden">
+	<span class="close-button" onclick="importToggle()">&times</span>
+	<button onclick="openImportRep()">
+		<h2>Import Polynomial Representation</h2>
+	</button>
+	<button id="import-from-library-button" onclick = "importToggle(); toggleImportLibrary()">
+		<h2>Import From Library</h2>
+	</button>
+</div>
+
+<div id = "export-choice" class="modal choice-parent hidden">
+	<span class="close-button" onclick="toggleExportChoice()">&times</span>
+	<button onclick = "init3D(showRemovals=true)">
+		<h2>Export 3D with Removals</h2>
+	</button>
+	<button onclick = "init3D()">
+		<h2>Export 3D</h2>
+	</button>
+	<button onclick="exportCanvas2D(true, true)">
+		<h2>Export Annotated 2D Matrix</h2>
+	</button>
+	<button onclick = "exportCanvas2D(false, true)">
+		<h2>Export Colored 2D Matrix</h2>
+	</button>
+	<button onclick = "exportCanvas2D(false, false)">
+		<h2>Export Plain 2D Matrix</h2>
+	</button>
+</div>
+
+<div id = "settings-parent" class="modal hidden">
+	<div class="settings-inner" onclick="e => e.preventDefault();">
+		<span class="close-button" onclick="toggleSettings()">&times</span>
+		<div id = "settings-panel">
+			<div class="settings-section">
+				<span class="settings-section-label">Matrix Form Coloring</span>
+				<span class="settings-persistent-field" id = "settings-diagonal-color-bias">
+					<label class="settings-field-label">Diagonal Color Bias:</label>
+					<input class="settings-field-slider" type="range" min="0" max="1" value=".3" step=".01"/>
+					<input class="settings-field-stepper" type="number" min="0" max="1" value=".3" step=".01"/>
+				</span>
+				<span class="settings-persistent-field" id = "settings-size-color-bias">
+					<label class="settings-field-label">Size Color Bias:</label>
+					<input class="settings-field-slider" type="range" min="0" max="1" value="0" step=".01"/>
+					<input class="settings-field-stepper" type="number" min="0" max="1" value="0" step=".01"/>
+				</span>
+				<span class="settings-persistent-field" id = "settings-diagonal-opacity-bias">
+					<label class="settings-field-label">Diagonal Opacity Bias:</label>
+					<input class="settings-field-slider" type="range" min="0" max="1" value=".3" step=".01"/>
+					<input class="settings-field-stepper" type="number" min="0" max="1" value=".3" step=".01"/>
+				</span>
+				<span class="settings-persistent-field" id = "settings-size-opacity-bias">
+					<label class="settings-field-label">Size Opacity Bias:</label>
+					<input class="settings-field-slider" type="range" min="0" max="1" value=".8" step=".01"/>
+					<input class="settings-field-stepper" type="number" min="0" max="1" value=".8" step=".01"/>
+				</span>
+				<span class="settings-field">
+					<label class="settings-field-label">Color Gradient:</label>
+					<input class="settings-field-color" type="color" />
+					<input class="settings-field-color" type="color" />
+				</span>
+			</div>
+			<div class="settings-section">
+				<span class="settings-section-label">Control Panel</span>
+				<span class="settings-field">
+					<label class="settings-field-label">Toggle Partition Values Panel:</label>
+					<button id ="settings-toggle-partition-section-button" onclick = "togglePartitionSection();">Toggle On</button>
+				</span>	
+			</div>
+
+			<button id ="hard-reset-button" onclick = "toggleHardResetPrompt(); toggleSettings();">Hard Reset</button>
+		</div>
+	</div>
+</div>
+
+<div id = "hard-reset-modal-parent" class="modal hidden">
+	<div class="hard-reset-modal-inner">
+		<span class="close-button" id="import-close-button" onclick="toggleHardResetPrompt()">&times</span>
+		<h2>Are you sure you want to reset everything?</h2>
+		<span class="hard-reset-modal-button-parent">
+			<button onclick = "fullReset()">Yes</button><button onclick="toggleHardResetPrompt()">No</button>
+		</span>
+	</div>
+</div>
+
+<div id = "import-library-parent" class="modal hidden">
+	<div class="import-library-inner">
+		<span class="close-button" id="import-close-button" onclick="doingKroneckerSelection = false; toggleImportLibrary()">&times</span>
+		<div id = "import-library">
+		</div>
+	</div>
+</div>
+
+
+<div id = "import-representation-parent" class="modal hidden">
+	<div class = "import-representation-inner">
+		<span class="close-button" onclick="toggleImportRep()">&times</span>
+		<textarea id="import-representation-parent-text"></textarea>
+		<button onclick="importPolyRep()">Import</button>
+	</div>
+</div>
+
+<p id="tutorial-text" class="slidehide">
+</p>
+<button onclick="endTutorial();" id="end-tutorial-button" class="slidehide">End Tutorial</button>
+
+<div id="loading-wheel" class="hidden"></div>
+<div id="no-solution-popup" class="hidden">No Solution Found</div>
+
+<button onclick="close3D(doExport=true)" id="export-3D-button" class="hidden">Export</button>
+<button onclick="close3D()" id="close-3D-button" class="hidden">Close</button>
+
+
+<canvas id="tensor-canvas"></canvas>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.js"></script>
+<script type="text/javascript"
+ src="./js/three.js"></script>
+ <script type="text/javascript"
+ src="./js/OrbitControls.js"></script>
+ <script type="text/javascript"
+ src="./js/tutorial.js"></script>
+ <script type="text/javascript"
+ src="./js/helper.js"></script>
+<script type="text/javascript"
+ src="./js/events.js"></script>
+ <script type="text/javascript"
+ src="./js/tensor.js"></script>
+<script type="text/javascript"
+ src="./js/index.js"></script>
+  <script type="text/javascript"
+ src="./js/tensor_library.js"></script>
+  </body>
+</html>

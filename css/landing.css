@@ -1,0 +1,111 @@
+:root {
+	font-size: 5vh;
+}
+
+
+h1, h2 {
+	font-family: 'Lato', sans-serif;
+	line-height: .5rem;
+	text-align: right;
+}
+h1 {
+	font-weight: 900;
+	font-size: 2rem;
+}
+h2 {
+	font-weight: 400;
+	font-size: 1rem;
+}
+
+
+.title {
+	position: absolute;
+	top: .5rem;
+	left: 1rem;
+}
+
+
+
+.ts-grid {
+	display: grid;
+	grid-template-columns: repeat(3,1fr);
+	/*position: absolute;
+	bottom: 2.5rem;
+	right: 6rem;*/
+	border: 1px #323232 solid;
+}
+
+.ts-grid-spot {
+	width: 25vh;
+	height: 25vh;
+	background: #F5F6F7;
+	font-family: 'Lato', sans-serif;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	font-size: .6rem;
+	transition: .1s;
+	color: black;
+	text-decoration: none;
+	transform: scale(1);
+}
+
+
+.ts-br {
+	border-right: #B8BFC1 dashed 2px;
+	border-bottom: #B8BFC1 dashed 2px;
+}
+.ts-b {
+	border-bottom: #B8BFC1 dashed 2px;
+}
+.ts-r {
+	border-right: #B8BFC1 dashed 2px;
+}
+
+.ts-grid-spot.enabled:hover {
+	cursor: pointer;
+	transform: scale(1.1);
+	border: 1px solid #B8BFC1;
+	z-index: 100;
+}
+.ts-grid-spot.enabled:active {
+	transform: scale(1.02);
+}
+
+.ts-grid-spot.ts-labeled::before {
+	content: "1";
+	color: #B8BFC1;
+	position: absolute;
+	left: -5vh;
+	z-index: 100;
+	transition: .1s;
+}
+
+.ts-grid-spot.ts-labeled:hover::before {
+	left: -3.6vh;
+	transform: scale(0.90909090909) translateY(-.1vh);
+}
+
+.ts-grid-spot.tb-labeled::after {
+	content: "1";
+	color: #B8BFC1;
+	position: absolute;
+	bottom: -5vh;
+	z-index: 100;
+	transition: .1s;
+}
+
+.ts-grid-spot.enabled.tb-labeled:hover::after {
+	bottom: -3.6vh;
+	transform: scale(0.90909090909) translateX(-.1vh);
+}
+
+
+.ts-grid-spot.ts-labeled.ts-labeled-0::before {content: "0";}
+.ts-grid-spot.ts-labeled.ts-labeled-1::before {content: "1";}
+.ts-grid-spot.ts-labeled.ts-labeled-2::before {content: "2";}
+
+.ts-grid-spot.tb-labeled.ts-labeled-0::after {content: "0";}
+.ts-grid-spot.tb-labeled.ts-labeled-1::after {content: "1";}
+.ts-grid-spot.tb-labeled.ts-labeled-2::after {content: "2";}

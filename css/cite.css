@@ -1,0 +1,46 @@
+.citation-parent {
+	font-family: 'Lato',sans-serif;
+	width: 100%;
+	height: 100%;
+	/*background: red;*/
+	padding-left: 3vw;
+	font-size: 3vh;
+}
+p {
+	font-size: 2.3vh;
+}
+.citation {
+	white-space: pre;
+}
+.citation-box-parent {
+	background: #edeef0;
+	width: 60vw; 
+	position: relative;
+	padding: 0 2vw;
+}
+i.copy-icon {
+	position: absolute;
+	right: .2rem;
+	bottom: .2rem;
+	color: #B8BFC1;
+}
+i.copy-icon.fa-check {
+	right: .3rem;
+}
+i.copy-icon:hover {
+	color: #323232;
+	cursor: pointer;
+}
+
+i.copy-icon:active {
+	color: black;
+	transform: scale(.9);
+}
+h2 {
+	font-size: 3vh;
+	text-align: left;
+}
+body {
+	overflow-y: scroll;
+	padding-bottom: 10vh;
+}
