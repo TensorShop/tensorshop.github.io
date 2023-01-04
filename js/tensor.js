@@ -220,8 +220,8 @@ class Tensor {
 
 		var inequalities = sum.map(el => `${el} >= 0`).join(',')
 
-		denominator = '('+denominator+')^1/3'
-		return `Maximize(${numerator}/${denominator},{${inequalities},${sum.join('+')}==1}))`
+		denominator = '('+denominator+')^(1/3)'
+		return `Maximize(${numerator}/${denominator},{${inequalities},${sum.join('+')}==1})`
 	}
 
 

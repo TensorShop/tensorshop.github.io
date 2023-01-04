@@ -174,6 +174,17 @@ function getMDLPCode() {
 
 function generateMapleMDLP(system) {
 	var matrixStr = '';
+
+	var objective = system[system.length-1].slice(0,-1).map(a => 1);
+	var constraints = system.slice(0,-1).map(arr => arr.slice(0,-1).map(a => -a));
+	var rhs = system.slice(0,-1).map(arr => -arr[arr.length-1]+(arr[arr.length-1] != 0 ? .000001 : .000001));
+	for (var i = 0; i < objective.length; i++) {
+		var row = objective.slice().fill(0);
+		row[i] = -1;
+		constraints.push(row)
+		rhs.push(0)
+	}
+
 	var mat = system.slice(0,-1).map(arr => arr.slice(0,-1));
 	for (var row of mat) {
 		matrixStr += `[${row}],`;
