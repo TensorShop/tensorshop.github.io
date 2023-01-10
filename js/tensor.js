@@ -184,12 +184,15 @@ class Tensor {
 				for (var r = 0; r < this.matrix.length; r++) {
 					if (r == this.matrix.length-1 || persistentData.partitions[0][r]) {
 						y++;
-						console.log(r)
+						if (persistentData.partitionValues[y][x] == "" || persistentData.partitionValues[y][x] == " ") {
+							console.log(y + x*_xPartitions)
+							continue
+						}
 
 						// generate label names based on position
 						// (using the number of xPartitions and yPartitions calculated when we updated the partition table)
 						console.log(`a_${x + y*_yPartitions}`,`a_${y + x*_xPartitions}`)
-						a.push(`a_${x + y*_yPartitions}`);
+						a.push(`a_${y + x*_yPartitions}`);
 						b.push(`a_${y + x*_xPartitions}`);
 
 
@@ -206,19 +209,27 @@ class Tensor {
 					}
 				}
 				a = a.join('+')
-				aProduct.push(`((${a})^(${a}))`)
+				if (a)
+					aProduct.push(`((${a})^(${a}))`)
+				else
+					aProduct.push('1')
+
 				b = b.join('+')
-				bProduct.push(`((${b})^(${b}))`)
+				if (b)
+					bProduct.push(`((${b})^(${b}))`)
+				else
+					bProduct.push('1')
 			}
 		}
 
-		cProduct = cProduct.map(arr => `((${arr.join('+')})^(${arr.join('+')}))`)
+		cProduct = cProduct.map(arr => `((${arr.join('+')})^(${arr.join('+')}))`).filter(n => n)
+		
 
 		numerator = '('+numerator.join('*')+')';
 
 		var denominator = `${aProduct.join('*')}*${bProduct.join('*')}*${cProduct.join('*')}`;
 
-		var inequalities = sum.map(el => `${el} >= 0`).join(',')
+		var inequalities = sum.map(el => `${el} >= 0`).join(',');
 
 		denominator = '('+denominator+')^(1/3)'
 		return `Maximize(${numerator}/${denominator},{${inequalities},${sum.join('+')}==1})`
