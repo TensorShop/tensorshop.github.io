@@ -193,7 +193,7 @@ class Tensor {
 						// (using the number of xPartitions and yPartitions calculated when we updated the partition table)
 						console.log(`a_${x + y*_yPartitions}`,`a_${y + x*_xPartitions}`)
 						a.push(`a_${y + x*_yPartitions}`);
-						b.push(`a_${y + x*_xPartitions}`);
+						b.push(`a_${x + y*_xPartitions}`);
 
 
 						var index = y + x*_xPartitions
@@ -210,29 +210,29 @@ class Tensor {
 				}
 				a = a.join('+')
 				if (a)
-					aProduct.push(`((${a})^(${a}))`)
+					aProduct.push(`(${a})^(${a})`)
 				else
 					aProduct.push('1')
 
 				b = b.join('+')
 				if (b)
-					bProduct.push(`((${b})^(${b}))`)
+					bProduct.push(`(${b})^(${b})`)
 				else
 					bProduct.push('1')
 			}
 		}
 
-		cProduct = cProduct.map(arr => `((${arr.join('+')})^(${arr.join('+')}))`).filter(n => n)
+		cProduct = cProduct.map(arr => `(${arr.join('+')})^(${arr.join('+')})`).filter(n => n)
 		
 
 		numerator = '('+numerator.join('*')+')';
 
-		var denominator = `${aProduct.join('*')}*${bProduct.join('*')}*${cProduct.join('*')}`;
+		var denominator = `(${aProduct.join('+')})*(${bProduct.join('+')})*(${cProduct.join('+')})`;
 
-		var inequalities = sum.map(el => `${el} >= 0`).join(',');
+		var inequalities = sum.map(el => `${el} >= eps`).join(',');
 
 		denominator = '('+denominator+')^(1/3)'
-		return `Maximize(${numerator}/${denominator},{${inequalities},${sum.join('+')}==1})`
+		return `with(Optimization); eps := 0.1e-6; Maximize(${numerator}/${denominator},{${inequalities},${sum.join('+')}==1})`
 	}
 
 

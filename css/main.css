@@ -609,10 +609,11 @@ p#tutorial-text {
 }
 
 .partition-grid {
-	
+	width: 100%;
 }
 .partition-grid-row {
 	width: 100%;
+	display: flex;
 }
 .partition-grid-row input {
 	margin: 1px .5px;

@@ -214,7 +214,7 @@ var _yPartitions = 1;
 function updatePartitionTable() {
 	const grid = document.getElementById("partition-grid-parent");
 	const partitions = persistentData.partitions;
-	const MAX_X_SIZE = 240;
+	const MAX_X_SIZE = 100;
 	const MAX_Y_SIZE = 120;
 
 	document.getElementById("partition-matrix-total-value").value = persistentData.partitionTotalValue;
@@ -248,7 +248,7 @@ function updatePartitionTable() {
 			var input = document.createElement('input');
 			input.value = (r in persistentData.partitionValues && c in persistentData.partitionValues[r]) ? persistentData.partitionValues[r][c] : '';
 			// size it properly
-			input.style.width = X_SIZE+'px';
+			input.style.width = X_SIZE+'%';
 			input.style.height = Y_SIZE+'px';
 
 			if (!persistentData.partitionValues[r] || !persistentData.partitionValues[r][c]) {

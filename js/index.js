@@ -141,9 +141,9 @@ setCanvasDims = () => {
 	width = ctx.canvas.width;
 	height = ctx.canvas.height;
 
-	matrixSize = size-150;
+	matrixSize = ((width > 1150 || height < 400) ? size-150 : 3*size/5-150);
 	squareSize = matrixSize/tensor.length;
-	border_x = (width-matrixSize)/2-150; // the -150 might break things
+	border_x = (width-matrixSize)/2-(width > 1000 ? 150 : (width > 600 ? 50 : 0)); // the -150 might break things
 	border_y = (height-matrixSize)/2;
 	ctx.fillStyle = colors.background;
 	ctx.fillRect(0, 0, width,height);
@@ -200,6 +200,7 @@ function update(dt) {
 		if (tensorHistory.length > HISTORY_LENGTH) {
 			tensorHistory = tensorHistory.slice(tensorHistory.length-HISTORY_LENGTH)
 		}
+		persistentData.partitions = persistentData.partitions.map(arr => arr.filter((el,i) => i < tensor.length-1))
 		updatePartitionTable();
 
 		var pv = tensor.isValidPartition(persistentData.partitions);
