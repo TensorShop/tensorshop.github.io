@@ -2,5 +2,11 @@
 
 
 # todo
-part IX of guide
-<!-- issue with partition finding on verticals -->
+finishing up guide
+download guide onto site
+cleanup code
+add 3d labels
+
+
+error with typing in box and partition value matrix
+maple lpsolve

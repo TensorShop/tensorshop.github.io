@@ -232,7 +232,7 @@ class Tensor {
 		var inequalities = sum.map(el => `${el} >= eps`).join(',');
 
 		denominator = '('+denominator+')^(1/3)'
-		return `with(Optimization); eps := 0.1e-6; Maximize(${numerator}/${denominator},{${inequalities},${sum.join('+')}==1})`
+		return `with(Optimization); eps := 0.1e-6; Maximize(${numerator}/${denominator},{${inequalities},${sum.join('+')}=1})`
 	}
 
 

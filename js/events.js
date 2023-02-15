@@ -182,7 +182,7 @@ function generateMapleMDLP(system) {
 	}
 	
 	// codeOutput = `LPSolve(Vector([${system[system.length-1].slice(0,-1)}],datatype=float),[Matrix([${matrixStr.slice(0,-1)}],datatype=float),Vector([${system.slice(0,-1).map(arr => arr[arr.length-1])}],datatype=float)])`
-	codeOutput = `LPSolve(Vector([${objective}],datatype=float),[Matrix([${matrixStr.slice(0,-1)}],datatype=float),Vector([${rhs}],datatype=float)])`
+	codeOutput = `with(Optimization);LPSolve(Vector([${objective}],datatype=float),[Matrix([${matrixStr.slice(0,-1)}],datatype=float),Vector([${rhs}],datatype=float)])`
 
 	return codeOutput
 }
