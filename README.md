@@ -7,4 +7,7 @@ download guide onto site
 cleanup code
 add 3d labels
 
-maple lpsolve?
+maple lpsolve - dropped the inequality conditions
+
+
+double check tutorial

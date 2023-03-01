@@ -1,3 +1,11 @@
+var THREE_FONT;
+
+const loader = new FontLoader();
+loader.load('fonts/helvetiker_regular.typeface.json', function ( response ) {
+
+	THREE_FONT = response;
+} );
+
 function resizeTensor(expand) {
 	if (expand)
 		tensor.expand()
@@ -176,7 +184,7 @@ function generateMapleMDLP(system) {
 	var matrixStr = '';
 
 	var [objective,constraints,rhs] = extractMatricesFromLPSystem(system);
-
+	console.log(constraints)
 	for (var row of constraints) {
 		matrixStr += `[${row}],`;
 	}
@@ -281,7 +289,12 @@ var camera = null;
 var controls = null;
 var renderer = null;
 
+var objectsToFaceCamera = [];
+
 function init3D(showRemovals = false) {
+	objectsToFaceCamera = [];
+
+
 	document.getElementById("export-3D-button").classList.toggle("hidden");
 	document.getElementById("close-3D-button").classList.toggle("hidden");
 	scene = new THREE.Scene();
@@ -312,14 +325,7 @@ scene.add(light)
 	controls.minDistance = 100;
 	controls.maxDistance = 500;
 
-	var font;
 
-	const loader = new FontLoader();
-	loader.load('fonts/helvetiker_regular.typeface.json', function ( response ) {
-
-		font = response;
-
-	} );
 
 	// controls.maxPolarAngle = Math.PI / 2;
 
@@ -366,17 +372,31 @@ scene.add(light)
 		}
 	}
 	var text_materials = [
-		new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } ), // front
-		new THREE.MeshPhongMaterial( { color: 0xffffff } ) // side
+		new THREE.MeshPhongMaterial( { color: 0x000000, flatShading: true } ), // front
+		new THREE.MeshPhongMaterial( { color: 0x000000 } ) // side
 	];
-	const textGeo = new TextGeometry( 'Hello three.js!', {
-		font: font,
-		size: 80,
-		height: 5,
-		curveSegments: 12,
-	} );
-	var textMesh1 = new THREE.Mesh( textGeo, text_materials );
-	scene.add(textMesh1);
+
+	var axisLength = tensor.matrix.length;
+
+	for (var i = 0; i < axisLength; i++) {
+		const textGeo = new TextGeometry(i.toString(), {
+			font: THREE_FONT,
+			size: 2,
+			height: .1,
+			curveSegments: 12,
+		} );
+
+		for (var axis = 0; axis < 3; axis++) {
+			var _textMesh = new THREE.Mesh( textGeo, text_materials );
+			var newX = graphSize*i*(axis == 0 ? 1 : 0)/axisLength;
+			var newY = graphSize*i*(axis == 1 ? 1 : 0)/axisLength;
+			var newZ = graphSize*i*(axis == 2 ? 1 : 0)/axisLength;
+			_textMesh.position.set( newX + (axis == 0 ? BOXSIZE/2 : -BOXSIZE/3), newY + (axis == 1 ? BOXSIZE/2 : -BOXSIZE/3), newZ + (axis == 2 ? BOXSIZE/2 : -BOXSIZE/3));
+			_textMesh.lookAt( camera.position );
+			scene.add(_textMesh);
+			objectsToFaceCamera.push(_textMesh);
+		}
+	}
 
 	drawGraph(cubeGeometry,cubeMaterial,tensor.matrix);
 	const removalCubeMaterial = new THREE.MeshToonMaterial( { color: 0x242424, transparent:true, opacity:.4 } );
@@ -396,6 +416,10 @@ function animate3D(dt) {
 }
 
 function render3D() {
+	for (var o of objectsToFaceCamera) {
+		console.log(o)
+		o.lookAt( camera.position );
+	}
 	renderer.render( scene, camera );
 }
 
