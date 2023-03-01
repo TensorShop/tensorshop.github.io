@@ -182,7 +182,7 @@ function generateMapleMDLP(system) {
 	}
 	
 	// codeOutput = `LPSolve(Vector([${system[system.length-1].slice(0,-1)}],datatype=float),[Matrix([${matrixStr.slice(0,-1)}],datatype=float),Vector([${system.slice(0,-1).map(arr => arr[arr.length-1])}],datatype=float)])`
-	codeOutput = `with(Optimization);LPSolve(Vector([${objective}],datatype=float),[Matrix([${matrixStr.slice(0,-1)}],datatype=float),Vector([${rhs}],datatype=float)])`
+	codeOutput = `with(Optimization);LPSolve(Vector([${objective}],datatype=float),[Matrix([${matrixStr.slice(0,-1)}],datatype=float),Vector([${rhs}],datatype=float)],assume=nonnegative)`
 
 	return codeOutput
 }
@@ -932,6 +932,12 @@ window.addEventListener('mousedown', e => {
 			}
 			break;
 		case 'EDITING-SINGLE':
+			if (type === undefined) {
+				editState = {
+					type : 'NONE',
+					data : {}
+				};
+			}
 			if (type === 'spot') {
 				editState = {
 					type : 'EDITING',
@@ -981,6 +987,12 @@ window.addEventListener('mousedown', e => {
 
 			break;
 		case 'REMOVAL-DEGENERATION':
+			if (type === undefined) {
+				editState = {
+					type : 'NONE',
+					data : {}
+				};
+			}
 			if (type === 'row' || type == 'col') {
 				editState = {
 					type : 'EDITING-DEGENERATION',
