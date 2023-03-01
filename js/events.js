@@ -312,6 +312,15 @@ scene.add(light)
 	controls.minDistance = 100;
 	controls.maxDistance = 500;
 
+	var font;
+
+	const loader = new FontLoader();
+	loader.load('fonts/helvetiker_regular.typeface.json', function ( response ) {
+
+		font = response;
+
+	} );
+
 	// controls.maxPolarAngle = Math.PI / 2;
 
 	//create a blue LineBasicMaterial
@@ -356,6 +365,19 @@ scene.add(light)
 			}
 		}
 	}
+	var text_materials = [
+		new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } ), // front
+		new THREE.MeshPhongMaterial( { color: 0xffffff } ) // side
+	];
+	const textGeo = new TextGeometry( 'Hello three.js!', {
+		font: font,
+		size: 80,
+		height: 5,
+		curveSegments: 12,
+	} );
+	var textMesh1 = new THREE.Mesh( textGeo, text_materials );
+	scene.add(textMesh1);
+
 	drawGraph(cubeGeometry,cubeMaterial,tensor.matrix);
 	const removalCubeMaterial = new THREE.MeshToonMaterial( { color: 0x242424, transparent:true, opacity:.4 } );
 	if (showRemovals) {
