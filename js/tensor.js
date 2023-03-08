@@ -790,6 +790,7 @@ class Tensor {
 		objectiveRow.push(0);
 
 		system.push(objectiveRow);
+		console.log(system)
 
 		return system;
 

@@ -168,7 +168,10 @@ function resetMDLPCodeButton() {
 
 function getMDLPCode() {
 	var button = document.getElementById("generate-mdlp-code");
-	var system = tensor.solveMonomialDegeneration(editState.data.locations);
+	// console.log(editState.data.locations)
+	// console.log(tensor)
+	var system = lastMDLPUpdate[1];//tensor.solveMonomialDegeneration(editState.data.locations);
+	// console.log(system)
 	var s = generateMapleMDLP(system)
 
 	navigator.clipboard.writeText(s);
@@ -182,6 +185,7 @@ function getMDLPCode() {
 
 function generateMapleMDLP(system) {
 	var matrixStr = '';
+	console.log(system)
 
 	var [objective,constraints,rhs] = extractMatricesFromLPSystem(system);
 	console.log(constraints)
@@ -417,7 +421,6 @@ function animate3D(dt) {
 
 function render3D() {
 	for (var o of objectsToFaceCamera) {
-		console.log(o)
 		o.lookAt( camera.position );
 	}
 	renderer.render( scene, camera );
@@ -1089,6 +1092,7 @@ window.addEventListener('mousedown', e => {
 
 				// get the system of equations in matrix form
 				var system = tensor.solveMonomialDegeneration(editState.data.locations);
+				// console.log(system,editState.data.locations)
 				lastMDLPUpdate = [Date.now(),system];
 				document.getElementById('loading-wheel').classList.remove("hidden");
 				setTimeout(() => {
