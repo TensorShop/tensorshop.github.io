@@ -28,6 +28,7 @@
 	<div class = "row">
 		<button onclick="doSelfKronecker()" id ="self-kronecker-button">⊗ Self-Kronecker</button>
 		<button onclick="doKronecker()" id ="kronecker-button">⊗ Kronecker</button>
+		<button onclick="showKroneckerLabels = !showKroneckerLabels;" class="hidden" id ="kronecker-labels-button">Toggle ⊗ Labels</button>
 	</div>
 	<span class="big-spacer"></span>
 	<div class = "row">
@@ -86,7 +87,10 @@
 	<div class = "hidden" id = 'mdlp-controls'>
 		<span class="section-divider small-top-margin">Solve Monomial Degeneration</span>
 		<br>
-		<button id = "generate-mdlp-code" onclick="getMDLPCode();">
+			<button onclick="callMDLP(lastMDLPUpdate[1]);">
+				<b>Compute</b> Monomial Degeneration Labels
+			</button>
+			<button id = "generate-mdlp-code" onclick="getMDLPCode();">
 				<b>Generate</b> Monomial Degeneration Linear Programming Code
 			</button>
 	</div>

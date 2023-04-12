@@ -22,16 +22,19 @@ var tensor = new Tensor([
 	[ 1, 0,-1,-1,-1,-1,-1],
 	[ 6, 1, 2, 3, 4, 5, 0]
 ]);
-console.log(shouldReset)
+// console.log(shouldReset)
 if (!shouldReset && !(localTensor == null || localTensor == '[object Object]')) {
 	localTensor = JSON.parse(localTensor);
 	tensor.matrix = localTensor.matrix;
 	tensor.removalMatrix = localTensor.removalMatrix;
+	tensor.kroneckerSizes = localTensor.kroneckerSizes;
+	updateKroneckerToggle()
 }
 
 
 var tensorHistory = [{}];
 var tensorHistoryIndex = 0;
+var showKroneckerLabels = false;
 
 
 function updatePolyRep() {
@@ -280,7 +283,10 @@ function update(dt) {
 		ctx.fillStyle = persistentData.zeroingRemovals[0][i] ? colors.inner_border : colors.labels;
 		if (tutorialState.tasks["Do Swap"] == false || tutorialState.tasks["Do Multiple Swap"] == false)
 			ctx.fillStyle = "white";
-		ctx.fillText(i, square.x1+squareSize/2, height-border_y+baseLabelDistance);
+		var label = i;
+		if (showKroneckerLabels)
+			label = `${Math.floor(i/tensor.kroneckerSizes[0])}, ${i%tensor.kroneckerSizes[1]}`
+		ctx.fillText(label, square.x1+squareSize/2, height-border_y+baseLabelDistance);
 
 		if (showAnnotations && (showDegenerationLabels || (editMode === 'REMOVAL-DEGENERATION' || editMode === 'REMOVAL-SOLVE-DEGENERATION'))) {
 			ctx.fillStyle = (editMode === 'REMOVAL-DEGENERATION' && editState.type === 'EDITING-DEGENERATION' && editState.data.type === 'col' && editState.data.ind === i) ? "cornflowerblue" : colors.inner_border ;
@@ -314,7 +320,10 @@ function update(dt) {
 				ctx.fillStyle = persistentData.zeroingRemovals[1][j] ? colors.inner_border : colors.labels;
 				if (tutorialState.tasks["Do Swap"] == false || tutorialState.tasks["Do Multiple Swap"] == false)
 					ctx.fillStyle = "white";
-				ctx.fillText(j, border_x-baseLabelDistance, square.y1+squareSize/2);
+				var label = j;
+				if (showKroneckerLabels)
+					label = `${Math.floor(j/tensor.kroneckerSizes[0])}, ${j%tensor.kroneckerSizes[1]}`
+				ctx.fillText(label, border_x-baseLabelDistance, square.y1+squareSize/2);
 
 				if (showAnnotations && (showDegenerationLabels || (editMode === 'REMOVAL-DEGENERATION' || editMode === 'REMOVAL-SOLVE-DEGENERATION'))) {
 					ctx.fillStyle = (editMode === 'REMOVAL-DEGENERATION' && editState.type === 'EDITING-DEGENERATION' && editState.data.type === 'row' && editState.data.ind === j) ? "cornflowerblue" : colors.inner_border ;
@@ -330,12 +339,17 @@ function update(dt) {
 				
 			if (z != -1 || rZ != -1) {
 				var label = Math.max(z,rZ);
+
 				var l = label.toString().length;
 				var fontFactor = (l < 3 ? 30 : (l < 10 ? Math.round(80/l + 4) : 11))/30;
 				ctx.font = labelFontSize*fontFactor+'px Lato';
 				ctx.fillStyle = (z == -1 && rZ != -1) ? colors.inner_border : colors.outer_border;
 
-  				ctx.fillText((l < 10 ? label : label.toString().slice(0,8)+'...'), square.x1+squareSize/2,square.y1+squareSize/2);
+				var _label = (l < 10 ? label : label.toString().slice(0,8)+'...');
+				if (showKroneckerLabels)
+					_label = `${Math.floor(label/tensor.kroneckerSizes[0])}, ${label%tensor.kroneckerSizes[1]}`
+
+  				ctx.fillText(_label, square.x1+squareSize/2,square.y1+squareSize/2);
 
   				// monomial degeneration z labels
 				if (showAnnotations && (editMode === 'REMOVAL-DEGENERATION' || editMode === 'REMOVAL-SOLVE-DEGENERATION')) {

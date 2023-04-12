@@ -43,8 +43,10 @@ function doSelfKronecker() {
 	if (tensor.length > 20)
 		return
 	tutorialState.tasks["Take Self-Kronecker"] = true;
-
-	tensor = new Tensor(tensor.doSimpleKroneckerProduct(tensor));
+	var m = tensor.doSimpleKroneckerProduct(tensor);
+	var s = tensor.kroneckerSizes;
+	tensor = new Tensor(m);
+	tensor.kroneckerSizes = s;
 	setCanvasDims();
 }
 
@@ -211,6 +213,8 @@ function extractMatricesFromLPSystem(system) {
 	}
 	return [objective,constraints,rhs]
 }
+
+
 
 // function to call the server to solve monomial degeneration with linear programing
 function callMDLP(system) {
@@ -385,8 +389,7 @@ scene.add(light)
 	for (var i = 0; i < axisLength; i++) {
 		const textGeo = new TextGeometry(i.toString(), {
 			font: THREE_FONT,
-			size: 2,
-			height: .1,
+			size: (axisLength > 6 ? .2+1.8/(0.286*axisLength+1) : 2),
 			curveSegments: 12,
 		} );
 
@@ -621,9 +624,10 @@ function setEditMode(newMode, el) {
 	} else if (editMode == 'EDITING-MULTIPLE') {
 		document.getElementById('painting-controls').classList.remove("enabled");
 	}
-	if (newMode == 'REMOVAL-SOLVE-DEGENERATION') {
-		document.getElementById('mdlp-controls').classList.remove("hidden");
-	} else if (editMode == 'REMOVAL-SOLVE-DEGENERATION') {
+	// if (newMode == 'REMOVAL-SOLVE-DEGENERATION') {
+	// 	document.getElementById('mdlp-controls').classList.remove("hidden");
+	// }
+	if (editMode == 'REMOVAL-SOLVE-DEGENERATION') {
 		document.getElementById('mdlp-controls').classList.add("hidden");
 	}
 
@@ -1097,7 +1101,10 @@ window.addEventListener('mousedown', e => {
 				document.getElementById('loading-wheel').classList.remove("hidden");
 				setTimeout(() => {
 					if (Date.now()-lastMDLPUpdate[0] >= 500) {
-						callMDLP(lastMDLPUpdate[1]);
+						if (tensor.matrix.length > 20)
+							document.getElementById('mdlp-controls').classList.remove("hidden");
+						else
+							callMDLP(lastMDLPUpdate[1]);
 					}
 				},500);
 
@@ -1346,3 +1353,11 @@ window.addEventListener('mouseup', e => {
 			break;
 	}
 });
+
+function updateKroneckerToggle() {
+	if (tensor.kroneckerSizes && tensor.kroneckerSizes.length > 0) {
+		document.getElementById("kronecker-labels-button").classList.remove("hidden")
+	} else {
+		document.getElementById("kronecker-labels-button").classList.add("hidden")
+	}
+}

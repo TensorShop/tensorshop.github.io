@@ -6,13 +6,12 @@ finishing up guide
 download guide onto site
 cleanup code
 
+replace loading circle on big lpsolves with a indicator to select an option
 
-add a compute button if the matrix is too big for maple lpsolve
+fix sizing on kronecker labels
+investigate cw + add mod 3 kronecker labels
+make kronecker labels move with swapping
 
-
-make labels smaller on bigger tensors
+write "Kronecker Product Labels" section
 
 double check tutorial
-
-FEATURE IDEA
-for kronecker product, put a toggle between x,y,and z index and original indices

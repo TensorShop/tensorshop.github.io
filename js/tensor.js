@@ -3,6 +3,8 @@ class Tensor {
 		this.matrix = matrix.reverse();
 		this.removalMatrix = this.matrix.map(arr => arr.map(el => -1));
 		this.currentAxes = "xyz";
+
+		this.kroneckerSizes = [];
 	}
 	computeDiagonals() { 
 		// var termCount = this.countTerms();
@@ -934,6 +936,8 @@ class Tensor {
 		var s2 = other.length;
 
 		var size = s1 * s2;
+		this.kroneckerSizes = [s1,s2];
+		updateKroneckerToggle();
 
 		var newMatrix = generateEmptyMatrix(size,size);
 		for (var y1 = 0; y1 < s1; y1++) {
@@ -944,7 +948,7 @@ class Tensor {
 						for (var x2 = 0; x2 < s2; x2++) {
 							var z2 = parseInt(other.matrix[x2][y2]);
 							if (z2 !== -1) {
-								console.log(z1,s2,z2);
+								// console.log(z1,s2,z2);
 								newMatrix[x1 * s2 + x2][y1 * s2 + y2] = z1 * s2 + z2;
 							}
 						}

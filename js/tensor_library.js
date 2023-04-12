@@ -206,8 +206,10 @@ function addTensorToLibrary(tensorEl,index) {
 				setCanvasDims();
 				persistentData.partitionZoomStack = [];
 			} else {
-				if (!event.target.classList.contains("tensor-choice-user-close"))
+				if (!event.target.classList.contains("tensor-choice-user-close")) {
 					replaceMatrix(event);
+					updateKroneckerToggle()
+				}
 			}
 		};
 
