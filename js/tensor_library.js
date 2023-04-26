@@ -201,7 +201,11 @@ function addTensorToLibrary(tensorEl,index) {
 			if (doingKroneckerSelection) {
 				doingKroneckerSelection = false;
 
-				tensor = new Tensor(tensor.doSimpleKroneckerProduct(getNewTensor(event)));
+				var m = tensor.doSimpleKroneckerProduct(getNewTensor(event));
+				var s = tensor.kroneckerLabels;
+				tensor = new Tensor(m);
+				tensor.kroneckerLabels = s;
+				
 				toggleImportLibrary();
 				setCanvasDims();
 				persistentData.partitionZoomStack = [];

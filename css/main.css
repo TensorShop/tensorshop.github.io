@@ -408,7 +408,7 @@ div.tensor-choice-matrix-spot {
 }
 
 
-#no-solution-popup {
+#no-solution-popup,#md-select-indicator,#kronecker-error {
 	position: absolute;
 	bottom: 3vh;
 	left: 3vw;
@@ -420,6 +420,12 @@ div.tensor-choice-matrix-spot {
 	padding: 1em 1em;
 	user-select: none;
 	text-align: left;
+}
+#md-select-indicator {
+	background: gray;
+}
+#mdlp-controls {
+	border: 2px red solid;
 }
 .new-tensor-name-label {
 	font-size: .7em;

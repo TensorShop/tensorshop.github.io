@@ -40,13 +40,15 @@ function togglePartitionSection() {
 
 
 function doSelfKronecker() {
-	if (tensor.length > 20)
+	if (tensor.length > 20) {
+		displayKroneckerError()
 		return
+	}
 	tutorialState.tasks["Take Self-Kronecker"] = true;
 	var m = tensor.doSimpleKroneckerProduct(tensor);
-	var s = tensor.kroneckerSizes;
+	var s = tensor.kroneckerLabels;
 	tensor = new Tensor(m);
-	tensor.kroneckerSizes = s;
+	tensor.kroneckerLabels = s;
 	setCanvasDims();
 }
 
@@ -166,6 +168,9 @@ function resetMDLPCodeButton() {
 	var button = document.getElementById("generate-mdlp-code");
 	button.innerHTML = "<b>Generate</b> Monomial Degeneration Linear Programming Code";
 	button.onclick = getMDLPCode;
+
+	document.getElementById('mdlp-controls').classList.add("hidden");
+	document.getElementById('md-select-indicator').classList.add("hidden");
 }
 
 function getMDLPCode() {
@@ -182,6 +187,7 @@ function getMDLPCode() {
 	button.innerHTML = "Copied to Clipboard";
 	button.onclick = () => {};
 	setTimeout(resetMDLPCodeButton,1000)
+
 
 }
 
@@ -220,6 +226,8 @@ function extractMatricesFromLPSystem(system) {
 function callMDLP(system) {
 	// make a call to the server to get the solution
 	document.getElementById('loading-wheel').classList.remove("hidden");
+	document.getElementById('mdlp-controls').classList.add("hidden");
+	document.getElementById('md-select-indicator').classList.add("hidden");
 
 	var [objective,constraints,rhs] = extractMatricesFromLPSystem(system);
 
@@ -629,6 +637,7 @@ function setEditMode(newMode, el) {
 	// }
 	if (editMode == 'REMOVAL-SOLVE-DEGENERATION') {
 		document.getElementById('mdlp-controls').classList.add("hidden");
+		document.getElementById('md-select-indicator').classList.add("hidden");
 	}
 
 	if (editMode === 'REMOVAL-SOLVE-DEGENERATION') {
@@ -916,6 +925,7 @@ window.addEventListener('keydown', e => {
 		var matrices = tensorHistory[tensorHistory.length-1-tensorHistoryIndex];
 		tensor.matrix = matrices.matrix.map(arr => arr.slice());
 		tensor.removalMatrix = matrices.removalMatrix;
+		tensor.kroneckerLabels = matrices.kroneckerLabels;
 		if (prevLength != tensor.length)
 			setCanvasDims() // need to recalculate the grid size if we are changing dimensions
 		computeMatMultDiagonals();
@@ -1068,7 +1078,6 @@ window.addEventListener('mousedown', e => {
 				if (tensor.matrix[ind.r][ind.c] === -1 && tensor.removalMatrix[ind.r][ind.c] === -1)
 					break;
 
-				// TODO: make it so you can't select every one of z value, because that would make it impossible
 
 				for (var i = 0; i < editState.data.locations.length; i++) {
 					var pos = editState.data.locations[i];
@@ -1076,10 +1085,21 @@ window.addEventListener('mousedown', e => {
 						break;
 				}
 
-				if (i == editState.data.locations.length)
+				if (i == editState.data.locations.length) // if the location is not in list, add it
 					editState.data.locations.push({r : ind.r, c : ind.c});
-				else
+				else { // else, remove location
 					editState.data.locations.splice(i,1);
+					if (editState.data.locations.length == 0) { // if there's nothing in the list, we don't need to compute
+						// set all labels to 0
+						persistentData.degenerationLabels[1] = Array(tensor.length).fill(0);
+						persistentData.degenerationLabels[0] = Array(tensor.length).fill(0);
+
+						resetDegeneration();
+						// perform degeneration using those labels
+						tensor.doMonomialDegeneration(persistentData.degenerationLabels, true);
+						break;
+					}
+				}
 
 
 				for (var {r,c} of persistentData.degenerationSpots) {
@@ -1098,12 +1118,15 @@ window.addEventListener('mousedown', e => {
 				var system = tensor.solveMonomialDegeneration(editState.data.locations);
 				// console.log(system,editState.data.locations)
 				lastMDLPUpdate = [Date.now(),system];
-				document.getElementById('loading-wheel').classList.remove("hidden");
+				if (tensor.matrix.length > 20)
+					document.getElementById('md-select-indicator').classList.remove("hidden");
+				else
+					document.getElementById('loading-wheel').classList.remove("hidden");
 				setTimeout(() => {
 					if (Date.now()-lastMDLPUpdate[0] >= 500) {
-						if (tensor.matrix.length > 20)
+						if (tensor.matrix.length > 20) {
 							document.getElementById('mdlp-controls').classList.remove("hidden");
-						else
+						} else
 							callMDLP(lastMDLPUpdate[1]);
 					}
 				},500);
@@ -1355,9 +1378,16 @@ window.addEventListener('mouseup', e => {
 });
 
 function updateKroneckerToggle() {
-	if (tensor.kroneckerSizes && tensor.kroneckerSizes.length > 0) {
+	if (tensor.kroneckerLabels && tensor.kroneckerLabels.length > 0) {
 		document.getElementById("kronecker-labels-button").classList.remove("hidden")
 	} else {
 		document.getElementById("kronecker-labels-button").classList.add("hidden")
 	}
+}
+
+function displayKroneckerError() {
+	document.getElementById("kronecker-error").classList.remove('hidden');
+	setTimeout(() => {
+		document.getElementById("kronecker-error").classList.add('hidden');
+	},1000);
 }
