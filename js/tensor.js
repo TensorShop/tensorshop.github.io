@@ -111,8 +111,14 @@ class Tensor {
 			for (var x = 0 ; x < row.length; x++) {
 				var z = row[x];
 
-				if (z != -1) // if the term is defined, append to final array 
-					rep.push([x,this.matrix.length-y-1,z]) // need to invert y
+				if (z != -1) {
+					if (showKroneckerLabels) {
+						rep.push([this.kroneckerLabels[0][x+1],this.kroneckerLabels[y+1][0],this.kroneckerLabels[y+1][x+1]])
+					}
+					else
+						rep.push([x,y,z]) // need to invert y
+				} // if the term is defined, append to final array 
+					
 			}
 		}
 		return rep;
@@ -246,7 +252,7 @@ class Tensor {
 		});
 		var htmlRep = '';
 		for (var term of rep) {
-			htmlRep += `x<sub>${term[0]}</sub>y<sub>${this.matrix.length-1-term[1]}</sub>z<sub>${term[2]}</sub> + `
+			htmlRep += `x<sub>${term[0]}</sub>y<sub>${term[1]}</sub>z<sub>${term[2]}</sub> + `
 		}
 		return htmlRep.slice(0,htmlRep.length-3);
 	}
@@ -507,8 +513,10 @@ class Tensor {
 		this.kroneckerLabels = []
 	}
 
-	_changeAxes(matrix,changes,currentAxes,newAxes) {
+	_changeAxes(matrix,changes,currentAxes,newAxes,isKron) {
 		
+		
+
 		var newMatrix = matrix.slice().map(arr => arr.map(arr => -1))
 
 		for (var y in matrix) {
@@ -517,11 +525,21 @@ class Tensor {
 				var z = row[x];
 				if (z != -1) {
 					var newCoords = [-1,-1,-1];
-					newCoords[changes[0]] = parseInt(x);
-					newCoords[changes[1]] = parseInt(y);
-					newCoords[changes[2]] = parseInt(z);
+					if (!isKron) {
+						newCoords[changes[0]] = parseInt(x);
+						newCoords[changes[1]] = parseInt(y);
+						newCoords[changes[2]] = parseInt(z);
+						newMatrix[newCoords[1]][newCoords[0]] = newCoords[2];
+					} else {
+						newCoords[changes[0]] = parseInt(x);
+						newCoords[changes[1]] = parseInt(y);
+						var ls = convertLabelToNumbers(z);
+						newCoords[changes[2]] = ls[0]*l2+ls[1];
+						newMatrix[newCoords[1]][newCoords[0]] = `${Math.floor(newCoords[2]/l2)}, ${newCoords[2]%l2}`;
+					}
+					// console.log(newCoords)
 
-					newMatrix[newCoords[1]][newCoords[0]] = newCoords[2];
+					
 				}
 			}
 		}
@@ -538,9 +556,22 @@ class Tensor {
 			changes[oldAxis] = newAxis;
 		}
 
-		this.matrix = this._changeAxes(this.matrix, changes, this.currentAxes, newAxes)
-		this.removalMatrix = this._changeAxes(this.removalMatrix, changes, this.currentAxes, newAxes)
-		this.kroneckerLabels = this._changeAxes(this.kroneckerLabels, changes, this.currentAxes, newAxes)
+		this.matrix = this._changeAxes(this.matrix, changes, this.currentAxes, newAxes, false)
+		this.removalMatrix = this._changeAxes(this.removalMatrix, changes, this.currentAxes, newAxes, false)
+		var convertLabelToNumbers = (label) => {
+			var ls = label.split(',');
+			var l1 = parseInt(ls[0])+1;
+			var l2 = parseInt(ls[1])+1;
+			return [l1,l2]
+		} 
+
+		this.kroneckerLabels = this.kroneckerLabels.map((arr,r) => arr.map((e,c) => ((r > 0 && c > 0) ? -1 : e) ))
+		console.log(this.kroneckerLabels)
+
+
+		// console.log(this.kroneckerLabels)
+		// this.kroneckerLabels = this._changeAxes(this.kroneckerLabels, changes, this.currentAxes, newAxes, true)
+		// console.log(this.kroneckerLabels)
 
 		var oldLabels = persistentData.degenerationLabels.map(arr => arr.slice());
 		var oldZeroes = persistentData.zeroingRemovals.map(arr => arr.slice());

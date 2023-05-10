@@ -116,14 +116,15 @@ var tensors = [{
 		[ 1, 2, 0],
 		[ 0, 1, 2]
 	]
-}, {
-	"name" : "Test Diagonal",
-	"matrix" : [
-	[-1,-1, 0],
-	[-1, 0,-1],
-	[ 0, -1,-1]
-	]
-},]
+}, //{
+// 	"name" : "Test Diagonal",
+// 	"matrix" : [
+// 	[-1,-1, 0],
+// 	[-1, 0,-1],
+// 	[ 0, -1,-1]
+// 	]
+// },
+]
 tensors.push(...localLibrary.map(obj => {
 	obj.matrix = obj.matrix.reverse(); return obj
 }));
@@ -359,15 +360,18 @@ function addTensorToLibrary(tensorEl,index) {
 
 
 		choiceDiv.appendChild(paramsDiv);
-
+		
 		choiceDiv.onclick = (event) => {
 			if (event.target.id) return;
 
 			if (doingKroneckerSelection) {
 				doingKroneckerSelection = false;
-				console.log("Hi");
 
-				tensor = new Tensor(tensor.doSimpleKroneckerProduct(getNewTensor(event)));
+				var m = tensor.doSimpleKroneckerProduct(getNewTensor(event));
+				var s = tensor.kroneckerLabels;
+				tensor = new Tensor(m);
+				tensor.kroneckerLabels = s;
+
 				toggleImportLibrary();
 				setCanvasDims();
 			} else {

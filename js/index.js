@@ -343,8 +343,15 @@ function update(dt) {
 				ctx.fillStyle = (z == -1 && rZ != -1) ? colors.inner_border : colors.outer_border;
 
 				var _label = (label.toString().length < 10 ? label : label.toString().slice(0,8)+'...');
-				if (showKroneckerLabels && tensor.kroneckerLabels.length > 0)
+				if (showKroneckerLabels && tensor.kroneckerLabels.length > 0) {
 					_label = tensor.kroneckerLabels[j+1][i+1];
+					if (_label == -1) {
+						var ls = tensor.kroneckerLabels[tensor.kroneckerLabels.length-1][0].split(',');
+						// var l1 = parseInt(ls[0])+1;
+						var l2 = parseInt(ls[1])+1;
+						_label = `${Math.floor(label/l2)}, ${label%l2}`
+					}
+				}
 
 				var l = _label.toString().length;
 				var fontFactor = (l < 3 ? 30 : (l < 10 ? Math.round(80/l + 4) : 11))/30;

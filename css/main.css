@@ -45,6 +45,11 @@ body {
 	padding-bottom: 10vh !important;
 	/*border-radius: 10px 0px 0px 10px;*/
 }
+#control-panel * {
+	-webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
 #control-panel button, #settings-parent button {
 	font-family: "Lato", sans-serif;
 	background: white;
@@ -263,6 +268,7 @@ h2,label {
 	-webkit-box-shadow: 2px 1px 23px -7px rgba(0,0,0,0.2);
 	-moz-box-shadow: 2px 1px 23px -7px rgba(0,0,0,0.2);
 	border-radius: 20px;
+	padding: 10px 15px;
 }
 #import-representation-parent button {
 	margin-top: 1rem;

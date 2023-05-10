@@ -2,7 +2,6 @@ var THREE_FONT;
 
 const loader = new FontLoader();
 loader.load('fonts/helvetiker_regular.typeface.json', function ( response ) {
-
 	THREE_FONT = response;
 } );
 
@@ -398,6 +397,7 @@ scene.add(light)
 		const textGeo = new TextGeometry(i.toString(), {
 			font: THREE_FONT,
 			size: (axisLength > 6 ? .2+1.8/(0.286*axisLength+1) : 2),
+			height: 1,
 			curveSegments: 12,
 		} );
 
@@ -522,7 +522,7 @@ function importPolyRep() {
 
 function copyPolyRep(el) {
 	var polyRep = document.getElementById("poly-rep");
-	var polyStr = polyRep.innerHTML.replaceAll("<sub>","_").replaceAll("</sub> "," ").replaceAll("</sub>","*");
+	var polyStr = polyRep.innerHTML.replaceAll("<sub>","_{").replaceAll("</sub> ","} ").replaceAll("</sub>","}*");
 
 	navigator.clipboard.writeText(polyStr.slice(0,polyStr.length-1));
 
