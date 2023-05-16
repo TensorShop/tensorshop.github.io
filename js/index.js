@@ -191,6 +191,8 @@ function computeMatMultDiagonals() {
 }
 
 function update(dt) {
+	if (!tensor.kroneckerLabels || tensor.kroneckerLabels.length == 0)
+		showKroneckerLabels = false;
 	// console.log(tensorHistoryIndex,tensorHistory.length-1-tensorHistoryIndex,!deepArrEquals(tensorHistory[tensorHistory.length-1-tensorHistoryIndex].matrix, tensor.matrix))
 	if (shouldSave || !deepArrEquals(tensorHistory[tensorHistory.length-1-tensorHistoryIndex].matrix, tensor.matrix)) {
 		// console.log('cleared')
@@ -337,7 +339,7 @@ function update(dt) {
 			var z = tensor.matrix[j][i];
 			var rZ = tensor.removalMatrix[j][i];
 				
-			if (z != -1 || rZ != -1) {
+			if (z != -1 || rZ != -1 || (showKroneckerLabels && tensor.kroneckerLabels[j+1][i+1] && tensor.kroneckerLabels[j+1][i+1] != '-1')) {
 				var label = Math.max(z,rZ);
 
 				ctx.fillStyle = (z == -1 && rZ != -1) ? colors.inner_border : colors.outer_border;
@@ -352,6 +354,7 @@ function update(dt) {
 						_label = `${Math.floor(label/l2)}, ${label%l2}`
 					}
 				}
+
 
 				var l = _label.toString().length;
 				var fontFactor = (l < 3 ? 30 : (l < 10 ? Math.round(80/l + 4) : 11))/30;

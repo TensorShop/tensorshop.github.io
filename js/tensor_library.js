@@ -206,7 +206,7 @@ function addTensorToLibrary(tensorEl,index) {
 				var s = tensor.kroneckerLabels;
 				tensor = new Tensor(m);
 				tensor.kroneckerLabels = s;
-				
+
 				toggleImportLibrary();
 				setCanvasDims();
 				persistentData.partitionZoomStack = [];
@@ -376,6 +376,7 @@ function addTensorToLibrary(tensorEl,index) {
 				setCanvasDims();
 			} else {
 				replaceMatrix(event);
+				updateKroneckerToggle()
 			}
 		};
 	}

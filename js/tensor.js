@@ -275,7 +275,8 @@ class Tensor {
 
 		this._simpleSwap(this.matrix,r1,r2);
 		this._simpleSwap(this.removalMatrix,r1,r2);
-		this._simpleSwap(this.kroneckerLabels,r1+1,r2+1);
+		if (this.kroneckerLabels && this.kroneckerLabels.length != 0)
+			this._simpleSwap(this.kroneckerLabels,r1+1,r2+1);
 
 		while (persistentData.degenerationLabels[1].length < tensor.length)
 			persistentData.degenerationLabels[1].push(0)
@@ -301,7 +302,8 @@ class Tensor {
 		}
 		swap(this.matrix,c1,c2);
 		swap(this.removalMatrix,c1,c2);
-		swap(this.kroneckerLabels,c1+1,c2+1);
+		if (this.kroneckerLabels && this.kroneckerLabels.length != 0)
+			swap(this.kroneckerLabels,c1+1,c2+1);
 
 		while (persistentData.degenerationLabels[0].length < tensor.length)
 			persistentData.degenerationLabels[0].push(0)
@@ -356,7 +358,8 @@ class Tensor {
 
 		this._reinsertion(this.matrix,r1,r2,this._copyRow,this._saveRow,this._writeRow);
 		this._reinsertion(this.removalMatrix,r1,r2,this._copyRow,this._saveRow,this._writeRow);
-		this._reinsertion(this.kroneckerLabels,r1+1,r2+1,this._copyRow,this._saveRow,this._writeRow);
+		if (this.kroneckerLabels && this.kroneckerLabels.length != 0)
+			this._reinsertion(this.kroneckerLabels,r1+1,r2+1,this._copyRow,this._saveRow,this._writeRow);
 
 		while (persistentData.degenerationLabels[1].length < tensor.length)
 			persistentData.degenerationLabels[1].push(0)
@@ -408,7 +411,8 @@ class Tensor {
 
 		this._reinsertions(this.matrix,r,selection,this._copyRowInverted,this._saveRows,this._writeRows);
 		this._reinsertions(this.removalMatrix,r,selection,this._copyRowInverted,this._saveRows,this._writeRows);
-		this._reinsertions(this.kroneckerLabels,r+1,selection.map(n => n+1),this._copyRowInverted,this._saveRows,this._writeRows);
+		if (this.kroneckerLabels && this.kroneckerLabels.length != 0)
+			this._reinsertions(this.kroneckerLabels,r+1,selection.map(n => n+1),this._copyRowInverted,this._saveRows,this._writeRows);
 
 		while (persistentData.degenerationLabels[1].length < tensor.length)
 			persistentData.degenerationLabels[1].push(0)
@@ -441,7 +445,8 @@ class Tensor {
 
 		this._reinsertion(this.matrix,c1,c2,this._copyColumn,this._saveColumn,this._writeColumn);
 		this._reinsertion(this.removalMatrix,c1,c2,this._copyColumn,this._saveColumn,this._writeColumn);
-		this._reinsertion(this.kroneckerLabels,c1+1,c2+1,this._copyColumn,this._saveColumn,this._writeColumn);
+		if (this.kroneckerLabels && this.kroneckerLabels.length != 0)
+			this._reinsertion(this.kroneckerLabels,c1+1,c2+1,this._copyColumn,this._saveColumn,this._writeColumn);
 
 		while (persistentData.degenerationLabels[0].length < tensor.length)
 			persistentData.degenerationLabels[0].push(0)
@@ -474,7 +479,8 @@ class Tensor {
 
 		this._reinsertions(this.matrix,r,selection,this._copyColumn,this._saveColumns,this._writeColumns);
 		this._reinsertions(this.removalMatrix,r,selection,this._copyColumn,this._saveColumns,this._writeColumns);
-		this._reinsertions(this.kroneckerLabels,r+1,selection.map(n => n+1),this._copyColumn,this._saveColumns,this._writeColumns);
+		if (this.kroneckerLabels && this.kroneckerLabels.length != 0)
+			this._reinsertions(this.kroneckerLabels,r+1,selection.map(n => n+1),this._copyColumn,this._saveColumns,this._writeColumns);
 
 
 		while (persistentData.degenerationLabels[0].length < tensor.length)
@@ -565,8 +571,8 @@ class Tensor {
 			return [l1,l2]
 		} 
 
-		this.kroneckerLabels = this.kroneckerLabels.map((arr,r) => arr.map((e,c) => ((r > 0 && c > 0) ? -1 : e) ))
-		console.log(this.kroneckerLabels)
+		if (this.kroneckerLabels && this.kroneckerLabels.length != 0)
+			this.kroneckerLabels = this.kroneckerLabels.map((arr,r) => arr.map((e,c) => ((r > 0 && c > 0) ? -1 : e) ))
 
 
 		// console.log(this.kroneckerLabels)

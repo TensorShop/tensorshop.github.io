@@ -293,6 +293,9 @@ h2,label {
 	transition: .1s;
 	transform: scale(.95);
 }
+#import-representation-parent-text {
+	font-size: 2.3vh;
+}
 
 .close-button {
 	position: absolute;
@@ -501,7 +504,7 @@ button#settings-button:active {
 	width: 90%;
 	text-align: center;
 }
-.settings-persistent-field,.settings-field {
+.settings-persistent-field, .psuedo-settings-persistent-field,.settings-field {
 	font-size: 1.5rem;
 	display: grid;
 	grid-template-columns: 4fr 1fr 1fr;
@@ -551,6 +554,21 @@ button#settings-button:active {
 	right: 30px;
 	z-index: 101;
 }
+
+#panel-3D-controls {
+	position: absolute;
+	width: 20vw;
+	left: 30px;
+	bottom: 30px;
+	z-index: 101;
+	background: #dfdfdf;
+	border: 1px solid #242424;
+	padding: 10px;
+}
+#panel-3D-controls .settings-field-slider {
+	width: 100%;
+}
+
 #close-3D-button {
 	right: calc(30px + 16vw);
 }

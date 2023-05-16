@@ -305,5 +305,9 @@ function isPrimeMemo(p,foundPrimes) {
 	return true
 }
 
-
-
+function convertKroneckerToSingle(kr1,kr2,max_kr2) {
+	return kr1*max_kr2+kr2;
+}
+function convertSingleToKronecker(v,max_kr2) {
+	return `${Math.floor(v/max_kr2)}, ${v%max_kr2}`;
+}

@@ -306,12 +306,60 @@ var renderer = null;
 
 var objectsToFaceCamera = [];
 
+var fontSizeMult3D = 1;
+
+document.getElementById("slider-3D-text-size").oninput = (event) => {
+	fontSizeMult3D = parseInt(document.getElementById("slider-3D-text-size").value)/100;
+	refreshText()
+}
+
+var textGroup3D;
+var graphSize = 40;
+var BOXSIZE = graphSize-.2;
+
+function createText() {
+	textGroup3D = new THREE.Group();
+	var text_materials = [
+		new THREE.MeshPhongMaterial( { color: 0x000000, flatShading: true } ), // front
+		new THREE.MeshPhongMaterial( { color: 0x000000 } ) // side
+	];
+
+	var axisLength = tensor.matrix.length;
+
+	for (var i = 0; i < axisLength; i++) {
+		const textGeo = new TextGeometry(i.toString(), {
+			font: THREE_FONT,
+			size: (axisLength > 6 ? .2+1.8/(0.286*axisLength+1) : 2)*fontSizeMult3D,
+			height: 1,
+			curveSegments: 12,
+		} );
+
+		for (var axis = 0; axis < 3; axis++) {
+			var _textMesh = new THREE.Mesh( textGeo, text_materials );
+			var newX = graphSize*i*(axis == 0 ? 1 : 0)/axisLength;
+			var newY = graphSize*i*(axis == 1 ? 1 : 0)/axisLength;
+			var newZ = graphSize*i*(axis == 2 ? 1 : 0)/axisLength;
+			_textMesh.position.set( newX + (axis == 0 ? BOXSIZE/2 : -BOXSIZE/3), newY + (axis == 1 ? BOXSIZE/2 : -BOXSIZE/3), newZ + (axis == 2 ? BOXSIZE/2 : -BOXSIZE/3));
+			_textMesh.lookAt( camera.position );
+			textGroup3D.add(_textMesh);
+			objectsToFaceCamera.push(_textMesh);
+		}
+	}
+	scene.add(textGroup3D);
+}
+
+function refreshText() {
+	scene.remove(textGroup3D)
+	createText()
+}
+
 function init3D(showRemovals = false) {
 	objectsToFaceCamera = [];
 
 
 	document.getElementById("export-3D-button").classList.toggle("hidden");
 	document.getElementById("close-3D-button").classList.toggle("hidden");
+	document.getElementById("panel-3D-controls").classList.toggle("hidden");
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color( 0xffffff );
 
@@ -350,7 +398,6 @@ scene.add(light)
 		linewidth: 10,
 	} );	
 
-	var graphSize = 40;
 
 	const points = [];
 	points.push( new THREE.Vector3( graphSize, 0, 0 ) );
@@ -364,7 +411,8 @@ scene.add(light)
 	const line = new THREE.Line( geometry, material );
 	scene.add( line );
 
-	const BOXSIZE = graphSize/tensor.length-.2;
+
+	BOXSIZE = graphSize/tensor.length-.2;
 
 	const cubeGeometry = new THREE.BoxGeometry( BOXSIZE, BOXSIZE, BOXSIZE );
 	const cubeMaterial = new THREE.MeshToonMaterial( { color: 0x528ef7, transparent:true, opacity:.8 } );
@@ -386,32 +434,10 @@ scene.add(light)
 			}
 		}
 	}
-	var text_materials = [
-		new THREE.MeshPhongMaterial( { color: 0x000000, flatShading: true } ), // front
-		new THREE.MeshPhongMaterial( { color: 0x000000 } ) // side
-	];
 
-	var axisLength = tensor.matrix.length;
 
-	for (var i = 0; i < axisLength; i++) {
-		const textGeo = new TextGeometry(i.toString(), {
-			font: THREE_FONT,
-			size: (axisLength > 6 ? .2+1.8/(0.286*axisLength+1) : 2),
-			height: 1,
-			curveSegments: 12,
-		} );
-
-		for (var axis = 0; axis < 3; axis++) {
-			var _textMesh = new THREE.Mesh( textGeo, text_materials );
-			var newX = graphSize*i*(axis == 0 ? 1 : 0)/axisLength;
-			var newY = graphSize*i*(axis == 1 ? 1 : 0)/axisLength;
-			var newZ = graphSize*i*(axis == 2 ? 1 : 0)/axisLength;
-			_textMesh.position.set( newX + (axis == 0 ? BOXSIZE/2 : -BOXSIZE/3), newY + (axis == 1 ? BOXSIZE/2 : -BOXSIZE/3), newZ + (axis == 2 ? BOXSIZE/2 : -BOXSIZE/3));
-			_textMesh.lookAt( camera.position );
-			scene.add(_textMesh);
-			objectsToFaceCamera.push(_textMesh);
-		}
-	}
+	createText();
+	
 
 	drawGraph(cubeGeometry,cubeMaterial,tensor.matrix);
 	const removalCubeMaterial = new THREE.MeshToonMaterial( { color: 0x242424, transparent:true, opacity:.4 } );
@@ -440,6 +466,7 @@ function render3D() {
 function close3D(doExport = false) {
 	document.getElementById("export-3D-button").classList.toggle("hidden");
 	document.getElementById("close-3D-button").classList.toggle("hidden");
+	document.getElementById("panel-3D-controls").classList.toggle("hidden");
 	const canvas = document.getElementById('tensor-canvas-3D');
 	if (doExport) {
 		var image = canvas.toDataURL('image/png');
@@ -479,44 +506,107 @@ function toggleImportRep() {
 
 function importPolyRep() {
 	toggleImportRep();
+	var anyKronecker = false;
 	var input = document.getElementById("import-representation-parent-text");
 	var rep = input.value;
 	input.value = "";
 	var newMatrix = [];
+	var newKroneckerLabels = [];
 	var oldMaxDim = 0;
+	var maxSecondDim = 0;
 	for (var term of rep.replaceAll(" ",'').split('+')) {
+		var _hasKroneckered = false;
 		var coords = [0,0,0];
 		var v;
 		var currentNum = "";
+		var _isKroneckerLabel = false;
+		var currentSecondNum = "";
 		for (var char of term) {
-			if ('0' <= char && char <= '9') {
-				currentNum += char;
+			// console.log(char,_isKroneckerLabel,currentNum,currentSecondNum)
+			if (char == ',') {
+				_isKroneckerLabel = true;
+				_hasKroneckered = true;
+				anyKronecker = true;
+			} else if ('0' <= char && char <= '9') {
+				if (_isKroneckerLabel)
+					currentSecondNum += char;
+				else
+					currentNum += char;
 			} else if (currentNum.length > 0) {
-				coords['xyz'.indexOf(v)] = parseInt(currentNum);
+				if (_isKroneckerLabel)
+					coords['xyz'.indexOf(v)] = [parseInt(currentNum),parseInt(currentSecondNum)];
+				else
+					coords['xyz'.indexOf(v)] = parseInt(currentNum);
 				currentNum = "";
+				currentSecondNum = "";
+				_isKroneckerLabel = false;
 			}
 			if (char == 'x' || char == 'y' || char == 'z')
 				v = char;
 		}
-		if (currentNum.length > 0)
-			coords['xyz'.indexOf(v)] = parseInt(currentNum);
+		if (currentNum.length > 0) {
+			if (_isKroneckerLabel)
+				coords['xyz'.indexOf(v)] = [parseInt(currentNum),parseInt(currentSecondNum)];
+			else
+				coords['xyz'.indexOf(v)] = parseInt(currentNum);
+		}
 
-		// get the maximum dimenension to ensure square matrix
+		// get the maximum dimension to ensure square matrix
 		// add one to make it the length required
-		var maxDim = Math.max(...coords)+1;
+		var maxDim;
+		if (_hasKroneckered) {
+			maxDim = Math.max(...coords.map(arr => (arr[0]+1)*(arr[1]+1)));
+			maxSecondDim = Math.max(maxSecondDim,Math.max(...coords.map(arr => arr[1]+1)));
+		} else
+			maxDim = Math.max(...coords)+1;
+
+		// console.log(term,coords,coords.map(arr => (arr[0]+1)*(arr[1]+1)),maxDim)
+
 		if (maxDim > oldMaxDim) {
-			for (var row of newMatrix) {
-				while (row.length < maxDim)
-					row.push(-1);
+			for (var i = 0; i < newMatrix.length; i++) {
+				var matRow = newMatrix[i];
+				while (matRow.length < maxDim) {
+					matRow.push(-1);
+					newKroneckerLabels[i].push(-1);
+				}
 			}
 			while (newMatrix.length < maxDim) {
-				newMatrix.push(Array.apply(null, Array(maxDim)).map(() => -1))
+				newMatrix.push(Array.apply(null, Array(maxDim)).map(() => -1));
+				newKroneckerLabels.push(Array.apply(null, Array(maxDim)).map(() => -1));
 			}
 			oldMaxDim = maxDim;
 		}
-		newMatrix[coords[1]][coords[0]] = coords[2];
+		if (_hasKroneckered) {
+			newKroneckerLabels[coords[1][0]*maxSecondDim+coords[1][1]][coords[0][0]*maxSecondDim+coords[0][1]] = coords[2];
+		} else
+			newMatrix[coords[1]][coords[0]] = coords[2];
 	}
+	if (anyKronecker) {
+		// console.log(newKroneckerLabels)
+		for (var r = 0; r < newMatrix.length; r++) {
+			for (var c = 0; c < newMatrix[r].length; c++) {
+				// console.log(newMatrix[r][c],newKroneckerLabels[r][c])
+				if (newMatrix[r][c] != -1 && newKroneckerLabels[r][c] == -1)
+					newKroneckerLabels[r][c] = convertSingleToKronecker(newMatrix[r][c],maxSecondDim)
+				else if (newMatrix[r][c] == -1 && newKroneckerLabels[r][c] != -1) {
+					newMatrix[r][c] = convertKroneckerToSingle(newKroneckerLabels[r][c][0],newKroneckerLabels[r][c][1],maxSecondDim)
+				}
+				if (newKroneckerLabels[r][c] != -1) 
+					newKroneckerLabels[r][c] = `${newKroneckerLabels[r][c][0]}, ${newKroneckerLabels[r][c][1]}`;
+			}
+		}
+		newKroneckerLabels.unshift([-1])
+		for (var i = 0; i < newKroneckerLabels.length-1; i++) {
+			newKroneckerLabels[i+1].unshift(convertSingleToKronecker(i,maxSecondDim))
+			newKroneckerLabels[0].push(convertSingleToKronecker(i,maxSecondDim))
+		}
+	}
+
 	tensor = new Tensor(newMatrix.reverse());
+	if (anyKronecker)
+		tensor.kroneckerLabels = newKroneckerLabels;
+	showKroneckerLabels = anyKronecker;
+	updateKroneckerToggle();
 	setCanvasDims();
 }
 
@@ -864,7 +954,7 @@ var heldKeys = {}
 window.addEventListener('keydown', e => {
 	// console.log(e.key,(e.key === 'Z' || e.key === 'z'), (tensorHistory.length - tensorHistoryIndex > 2))
 	if (editState.type == 'EDITING' && editState.data.row < tensor.length && editState.data.col < tensor.length) {
-		var n = tensor.matrix[editState.data.row][editState.data.col].toString();
+		var n = (showKroneckerLabels) ? tensor.kroneckerLabels[editState.data.row+1][editState.data.col+1] : tensor.matrix[editState.data.row][editState.data.col].toString();
 		if (e.key == 'Backspace') {
 			if (n.length === 1 || n === '-1') {
 				n = '-1';
@@ -872,17 +962,40 @@ window.addEventListener('keydown', e => {
 			}
 			else
 				n = n.slice(0,n.length-1);
-		} else if (48 <= e.keyCode && e.keyCode <= 57) {
-			if (n === '-1' || !editState.data.hasClicked)
+		} else if ((48 <= e.keyCode && e.keyCode <= 57) || (showKroneckerLabels && e.key == ',' && !n.includes(','))) {
+			if (n === '-1' || !editState.data.hasClicked && e.key != ',')
 				n = e.key;
 			else
-				n += e.key;
+				n += e.key + (e.key == ',' ? ' ' : ''); // append typed character, appending space if it's a comma
 
 			// tell the tutorial that the edit cell action has been completed
 			tutorialState.tasks['Edit Cell'] = true;
 		}
 		editState.data.hasClicked = true;
-		tensor.matrix[editState.data.row][editState.data.col] = parseInt(n);
+
+		if (showKroneckerLabels) {
+			tensor.kroneckerLabels[editState.data.row+1][editState.data.col+1] = n;
+			if (n.includes(',') && n.slice(n.indexOf(',')+1).trim().length > 0 && n != '-1, -1') {
+				if (tensor.kroneckerLabels.length > 0) {
+					var splitKroneckerPair = n.split(',');
+					var ls = tensor.kroneckerLabels[tensor.kroneckerLabels.length-1][0].split(',');
+					var l2 = parseInt(ls[1])+1;
+					tensor.matrix[editState.data.row][editState.data.col] = parseInt(splitKroneckerPair[0])*l2+parseInt(splitKroneckerPair[1]);
+				}
+			} else {
+				tensor.matrix[editState.data.row][editState.data.col] = -1;
+			}
+		} else {
+			var i_n = parseInt(n);
+			tensor.matrix[editState.data.row][editState.data.col] = i_n;
+			if (tensor.kroneckerLabels.length > 0 && i_n != -1 && !isNaN(i_n)) {
+				var ls = tensor.kroneckerLabels[tensor.kroneckerLabels.length-1][0].split(',');
+				var l2 = parseInt(ls[1])+1;
+				tensor.kroneckerLabels[editState.data.row+1][editState.data.col+1] = `${Math.floor(i_n/l2)}, ${i_n%l2}`;
+			} else {
+				tensor.kroneckerLabels[editState.data.row+1][editState.data.col+1] = '-1';
+			}
+		}
 	} else if (editState.type == 'EDITING-DEGENERATION' && editState.data.ind < tensor.length) {
 		var n;
 		var labels = persistentData.degenerationLabels[editState.data.type === "row" ? 1 : 0];
@@ -1378,6 +1491,7 @@ window.addEventListener('mouseup', e => {
 });
 
 function updateKroneckerToggle() {
+	console.log(tensor.kroneckerLabels)
 	if (tensor.kroneckerLabels && tensor.kroneckerLabels.length > 0) {
 		document.getElementById("kronecker-labels-button").classList.remove("hidden")
 	} else {

@@ -289,6 +289,12 @@
 
 <button onclick="close3D(doExport=true)" id="export-3D-button" class="hidden">Export</button>
 <button onclick="close3D()" id="close-3D-button" class="hidden">Close</button>
+<div id="panel-3D-controls" class="hidden">
+	<span class="pseudo-settings-persistent-field">
+		<label class="settings-field-label">Text Size:</label>
+		<input type="range" min="1" max="200" value="100" class="settings-field-slider" id="slider-3D-text-size">
+	</span>
+</div>
 
 
 <canvas id="tensor-canvas"></canvas>
