@@ -1,21 +1,27 @@
 var localPersistentData = localStorage.getItem("mm_persistentdata");
 
-var persistentData = {
-	indexPermutationsIndex : 0,
-	zeroingRemovals : [[],[],[]],
-	degenerationLabels : [[],[],[]],
-	degenerationSpots : [],
+var persistentData = {}
 
-	partitions : [[],[],[]],
-	partitionValues : [[]],
-	partitionTotalValue : 0,
-	partitionZoomStack : [],
+function loadDefaultPersistentData() {
+	persistentData = {
+		indexPermutationsIndex : 0,
+		zeroingRemovals : [[],[],[]],
+		degenerationLabels : [[],[],[]],
+		degenerationSpots : [],
 
-	diagonalColorBias : .3,
-	diagonalOpacityBias : .3,
-	sizeColorBias : 0,
-	sizeOpacityBias : .8,
+		partitions : [[],[],[]],
+		partitionValues : [[]],
+		partitionTotalValue : 0,
+		partitionZoomStack : [],
+
+		diagonalColorBias : .3,
+		diagonalOpacityBias : .3,
+		sizeColorBias : 0,
+		sizeOpacityBias : .8,
+		gradientColors : [[159, 64/100, 100/100], [3, 87/100, 93/100]],
+	}
 }
+loadDefaultPersistentData();
 
 // check if there is a reset url parameter
 const params = new URLSearchParams(location.search);
@@ -48,22 +54,8 @@ function fullReset() {
 	});
 	
 
-	persistentData = {
-		indexPermutationsIndex : 0,
-		zeroingRemovals : [[],[],[]],
-		degenerationLabels : [[],[],[]],
-		degenerationSpots : [],
-
-		partitions : [[],[],[]],
-		partitionValues : [[]],
-		partitionTotalValue : 0,
-		partitionZoomStack : [],
-
-		diagonalColorBias : .3,
-		diagonalOpacityBias : .3,
-		sizeColorBias : 0,
-		sizeOpacityBias : .8,
-	}
+	loadDefaultPersistentData();
+	
 	tensor = new Tensor(tensors[2].matrixGenerator(6).reverse());
 	setCanvasDims()
 	
@@ -131,6 +123,34 @@ function int2hex(n) {
     return hex;
 }
 
+function rgb2hsv(rgb) {
+	var [r,g,b] = rgb;
+	var rp = r/255;
+	var gp = g/255;
+	var bp = b/255;
+	var cmax = Math.max(rp,gp,bp);
+	var cmin = Math.min(rp,gp,bp);
+	var delta = cmax-cmin;
+
+	var hue;
+	if (delta == 0)
+		hue = 0;
+	else if (cmax == rp)
+		hue = 60*(((gp-bp)/delta)%6)
+	else if (cmax == gp)
+		hue = 60*(((bp-rp)/delta)+2)
+	else if (cmax == bp)
+		hue = 60*(((rp-gp)/delta)+4)
+
+	var sat = (cmax == 0) ? 0 : (delta/cmax);
+
+	var val = cmax;
+	return [hue,sat,val]
+}
+function hex2rgb(hex) {
+	return [parseInt(hex.slice(1,3), 16),parseInt(hex.slice(3,5), 16),parseInt(hex.slice(5,7), 16)]
+}
+
 // simple helper function to convert from rgb values to hex string
 function rgb2hex(rgb) {
 	var [r,g,b] = rgb;
@@ -195,11 +215,14 @@ function resetDegeneration() {
 }
 
 
+
+// default gradient [159, 64/100, 100/100] to [3, 87/100, 93/100]
+
+
 // helper function to calculate the color of a spot on the 2D rep
 function computeSpotColor(percentSize, diagonal, tensor) {
 	var p = Math.pow((diagonal.len-1)/(tensor.length-1),persistentData.diagonalColorBias) * persistentData.diagonalColorBias/(persistentData.diagonalColorBias+persistentData.sizeColorBias) + (persistentData.sizeOpacityBias * percentSize)  * persistentData.sizeColorBias/(persistentData.diagonalColorBias+persistentData.sizeColorBias);
-
-	var hsv = computePointOnGradient(p, [{percent : 0, color : [159, 64/100, 100/100]}, {percent : 1, color : [3, 87/100, 93/100]}]);
+	var hsv = computePointOnGradient(p, [{percent : 0, color : persistentData.gradientColors[0]}, {percent : 1, color : persistentData.gradientColors[1]}]);
 
 	return hsv;
 }

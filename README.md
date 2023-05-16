@@ -2,8 +2,6 @@
 
 
 # todo
-finish settings
-
 finish guide
 download guide onto site
 

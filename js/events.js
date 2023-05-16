@@ -678,15 +678,29 @@ function setupSettingField(element, value) {
 	element.children[2].value = parseFloat(value);
 }
 
-setupSettingField(document.getElementById("settings-diagonal-color-bias"),persistentData.diagonalColorBias);
-setupSettingField(document.getElementById("settings-size-color-bias"),persistentData.sizeColorBias);
-setupSettingField(document.getElementById("settings-diagonal-opacity-bias"),persistentData.diagonalOpacityBias);
-setupSettingField(document.getElementById("settings-size-opacity-bias"),persistentData.sizeOpacityBias);
 
+// set input function for color gradient fields
+var mmColorGradientStartInput = document.getElementById("settings-color-gradient").children[1];
+var mmColorGradientEndInput = document.getElementById("settings-color-gradient").children[2];
+function updateGradientColorValue(hex, index) {
+	persistentData.gradientColors[index] = rgb2hsv(hex2rgb(hex));
+	shouldSave = true;
+}
+mmColorGradientStartInput.oninput = () => updateGradientColorValue(mmColorGradientStartInput.value,0);
+mmColorGradientEndInput.oninput = () => updateGradientColorValue(mmColorGradientEndInput.value,1);
 
+updateSettingsFields()
+function updateSettingsFields() {
+	// set up color gradient fields
+	mmColorGradientStartInput.value = hsv2hex(persistentData.gradientColors[0])
+	mmColorGradientEndInput.value = hsv2hex(persistentData.gradientColors[1])
 
-
-
+	// set up slider persistent fields
+	setupSettingField(document.getElementById("settings-diagonal-color-bias"),persistentData.diagonalColorBias);
+	setupSettingField(document.getElementById("settings-size-color-bias"),persistentData.sizeColorBias);
+	setupSettingField(document.getElementById("settings-diagonal-opacity-bias"),persistentData.diagonalOpacityBias);
+	setupSettingField(document.getElementById("settings-size-opacity-bias"),persistentData.sizeOpacityBias);
+}
 
 var mouse = {
 	x : 0,
