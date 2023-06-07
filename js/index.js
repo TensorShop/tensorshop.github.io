@@ -28,6 +28,7 @@ if (!shouldReset && !(localTensor == null || localTensor == '[object Object]')) 
 	tensor.matrix = localTensor.matrix;
 	tensor.removalMatrix = localTensor.removalMatrix;
 	tensor.kroneckerLabels = localTensor.kroneckerLabels;
+	tensor.kroneckerSecondDim = localTensor.kroneckerSecondDim;
 	updateKroneckerToggle()
 }
 
@@ -198,7 +199,7 @@ function update(dt) {
 		// console.log('cleared')
 		tensorHistory = tensorHistory.slice(0,tensorHistory.length-tensorHistoryIndex)
 
-		tensorHistory.push({matrix : tensor.matrix.map(arr => arr.slice()), removalMatrix : tensor.removalMatrix.map(arr => arr.slice()), kroneckerLabels : tensor.kroneckerLabels.map(arr => arr.slice())})
+		tensorHistory.push({matrix : tensor.matrix.map(arr => arr.slice()), removalMatrix : tensor.removalMatrix.map(arr => arr.slice()), kroneckerLabels : tensor.kroneckerLabels.map(arr => arr.slice()), kroneckerSecondDim : tensor.kroneckerSecondDim})
 		// only need to recompute diagonals on change
 		computeMatMultDiagonals();
 		
@@ -348,10 +349,7 @@ function update(dt) {
 				if (showKroneckerLabels && tensor.kroneckerLabels.length > 0) {
 					_label = tensor.kroneckerLabels[j+1][i+1];
 					if (_label == -1) {
-						var ls = tensor.kroneckerLabels[tensor.kroneckerLabels.length-1][0].split(',');
-						// var l1 = parseInt(ls[0])+1;
-						var l2 = parseInt(ls[1])+1;
-						_label = `${Math.floor(label/l2)}, ${label%l2}`
+						_label = `${Math.floor(label/tensor.kroneckerSecondDim)}, ${label%tensor.kroneckerSecondDim}`
 					}
 				}
 

@@ -6,6 +6,7 @@ class Tensor {
 
 		// labels for kronecker product (should include room for labels)
 		this.kroneckerLabels = [];
+		this.kroneckerSecondDim = 0;
 	}
 	computeDiagonals() { 
 		// var termCount = this.countTerms();
@@ -504,7 +505,8 @@ class Tensor {
 	expand() {
 		this._expand(this.matrix);
 		this._expand(this.removalMatrix);
-		this.kroneckerLabels = []
+		this.kroneckerLabels = [];
+		this.kroneckerSecondDim = 0;
 	}
 	_shrink(matrix) {
 		if (matrix.length > 1) {
@@ -517,6 +519,7 @@ class Tensor {
 		this._shrink(this.matrix);
 		this._shrink(this.removalMatrix);
 		this.kroneckerLabels = []
+		this.kroneckerSecondDim = 0;
 	}
 
 	_changeAxes(matrix,changes,currentAxes,newAxes,isKron) {
@@ -984,6 +987,7 @@ class Tensor {
 
 		var size = s1 * s2;
 		this.kroneckerLabels = generateEmptyMatrix(size+1,size+1);
+		this.kroneckerSecondDim = s2;
 		updateKroneckerToggle();
 
 		var newMatrix = generateEmptyMatrix(size,size);

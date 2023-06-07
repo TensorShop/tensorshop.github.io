@@ -46,8 +46,10 @@ function doSelfKronecker() {
 	tutorialState.tasks["Take Self-Kronecker"] = true;
 	var m = tensor.doSimpleKroneckerProduct(tensor);
 	var s = tensor.kroneckerLabels;
+	var d = tensor.kroneckerSecondDim;
 	tensor = new Tensor(m);
 	tensor.kroneckerLabels = s;
+	tensor.kroneckerSecondDim = d;
 	setCanvasDims();
 }
 
@@ -327,14 +329,29 @@ function createText() {
 	var axisLength = tensor.matrix.length;
 
 	for (var i = 0; i < axisLength; i++) {
-		const textGeo = new TextGeometry(i.toString(), {
-			font: THREE_FONT,
-			size: (axisLength > 6 ? .2+1.8/(0.286*axisLength+1) : 2)*fontSizeMult3D,
-			height: 1,
-			curveSegments: 12,
-		} );
-
+		var textGeo;
+		if (!showKroneckerLabels) {
+			textGeo = new TextGeometry(i.toString(), {
+				font: THREE_FONT,
+				size: (axisLength > 6 ? .2+1.8/(0.286*axisLength+1) : 2)*fontSizeMult3D,
+				height: 1,
+				curveSegments: 12,
+			} );
+		}
 		for (var axis = 0; axis < 3; axis++) {
+			if (showKroneckerLabels) {
+				var label;
+				if (axis == 0) label = tensor.kroneckerLabels[i+1][0];
+				if (axis == 1) label = tensor.kroneckerLabels[0][i+1];
+				if (axis == 2) label = convertSingleToKronecker(i,tensor.kroneckerSecondDim);
+				textGeo = new TextGeometry(label, {
+					font: THREE_FONT,
+					size: (axisLength > 6 ? .2+1.8/(0.286*axisLength+1) : 2)*fontSizeMult3D,
+					height: 1,
+					curveSegments: 12,
+				} );
+			}
+
 			var _textMesh = new THREE.Mesh( textGeo, text_materials );
 			var newX = graphSize*i*(axis == 0 ? 1 : 0)/axisLength;
 			var newY = graphSize*i*(axis == 1 ? 1 : 0)/axisLength;
@@ -603,8 +620,10 @@ function importPolyRep() {
 	}
 
 	tensor = new Tensor(newMatrix.reverse());
-	if (anyKronecker)
+	if (anyKronecker) {
 		tensor.kroneckerLabels = newKroneckerLabels;
+		tensor.kroneckerSecondDim = maxSecondDim;
+	}
 	showKroneckerLabels = anyKronecker;
 	updateKroneckerToggle();
 	setCanvasDims();
@@ -1053,6 +1072,7 @@ window.addEventListener('keydown', e => {
 		tensor.matrix = matrices.matrix.map(arr => arr.slice());
 		tensor.removalMatrix = matrices.removalMatrix;
 		tensor.kroneckerLabels = matrices.kroneckerLabels;
+		tensor.kroneckerSecondDim = matrices.kroneckerSecondDim;
 		if (prevLength != tensor.length)
 			setCanvasDims() // need to recalculate the grid size if we are changing dimensions
 		computeMatMultDiagonals();
